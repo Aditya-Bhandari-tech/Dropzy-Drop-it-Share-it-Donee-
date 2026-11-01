@@ -1,69 +1,85 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import Navbar, { FeatureTab } from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import UploadCard from "@/components/UploadCard";
+import ReceiveCard from "@/components/ReceiveCard";
+import UrlShortenerCard from "@/components/UrlShortenerCard";
+import QrToolCard from "@/components/QrToolCard";
+import StringGeneratorCard from "@/components/StringGeneratorCard";
+import IntroAnimation from "@/components/IntroAnimation";
+import Footer from "@/components/Footer";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<FeatureTab>("send");
+  const [scannedCode, setScannedCode] = useState("");
+  const [introFinished, setIntroFinished] = useState(false);
+
+  const handleQrCodeDetected = (code: string) => {
+    setScannedCode(code);
+    setActiveTab("receive");
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* Intro animation (first-time session only) */}
+      <IntroAnimation onComplete={() => setIntroFinished(true)} />
+
+      <div className="min-h-screen bg-gradient-to-b from-[#cfdced] via-[#e2ebf8] to-[#edf3fc] text-slate-800 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+        {/* Ambient background glows */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-300/30 rounded-full blur-[100px]" />
+          <div className="absolute top-1/4 -right-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-[120px]" />
+          <div className="absolute bottom-10 left-1/3 w-[500px] h-[500px] bg-sky-200/30 rounded-full blur-[140px]" />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="relative z-10 flex flex-col items-center w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
+          {/* Main Canvas Card */}
+          <div className="w-full max-w-6xl bg-gradient-to-br from-white/95 via-white/85 to-[#e9f1fc]/90 backdrop-blur-2xl rounded-[32px] sm:rounded-[40px] border border-white/90 shadow-[0_25px_60px_-15px_rgba(37,99,235,0.12)] p-4 sm:p-8 lg:p-12 transition-all">
+            {/* Top Navigation */}
+            <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+
+            {/* Core 2-Column Hero & Dynamic Action Split */}
+            <main className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mt-6 lg:mt-10">
+              {/* Left Column: Hero Content */}
+              <div className="lg:col-span-7 flex flex-col justify-center">
+                <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
+              </div>
+
+              {/* Right Column: Dynamic Card */}
+              <div className="lg:col-span-5 w-full flex justify-center">
+                {activeTab === "send" && <UploadCard />}
+
+                {activeTab === "receive" && (
+                  <ReceiveCard
+                    initialCode={scannedCode}
+                    onSwitchToQrStudio={() => setActiveTab("qrcode")}
+                  />
+                )}
+
+                {activeTab === "shortener" && <UrlShortenerCard />}
+
+                {activeTab === "qrcode" && (
+                  <QrToolCard onOpenTransfer={handleQrCodeDetected} />
+                )}
+
+                {activeTab === "generator" && (
+                  <StringGeneratorCard
+                    onUseCodeInReceiver={(code) => {
+                      setScannedCode(code);
+                      setActiveTab("receive");
+                    }}
+                  />
+                )}
+              </div>
+            </main>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    </>
   );
 }
